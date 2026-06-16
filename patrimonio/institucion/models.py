@@ -6,25 +6,24 @@ class Museo(models.Model):
     año_fundacion = models.IntegerField()
 
     def get_costo_total_produccion(self):
-        """ """
         total = 0
+
         for guia in self.guia_museo_set.all():
             for exhibicion in guia.guia_exhibicion.all():
                 total += exhibicion.costo_produccion
         return total
 
     def get_guia_mas_experiencia(self):
-        """ """
         guias = self.guia_museo_set.all()
-        if len(guias) == 0:
+
+        if not guias:
             return "Sin guías"
-            
-        mejor_guia = guias[0]
-        for guia in guias:
-            if guia.años_experiencia_guia > mejor_guia.años_experiencia_guia:
-                mejor_guia = guia
-                
-        return mejor_guia.nombre_completo
+
+        maxima = guias.order_by('-años_experiencia_guia').first().años_experiencia_guia
+
+        mejores = guias.filter(años_experiencia_guia=maxima)
+
+        return ", ".join(g.nombre_completo for g in mejores)
 
     def __str__(self):
         return f"Nombre {self.nombre} - Ciudad: {self.ciudad}- Año fundacion: {self.año_fundacion}"
