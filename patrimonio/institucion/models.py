@@ -1,10 +1,30 @@
 from django.db import models
 
 class Museo(models.Model):
-    nombre = models.CharField(max_length=30, unique =True)
+    nombre = models.CharField(max_length=30, unique=True)
     ciudad = models.CharField(max_length=30)
     año_fundacion = models.IntegerField()
 
+    def get_costo_total_produccion(self):
+        """ """
+        total = 0
+        for guia in self.guia_museo_set.all():
+            for exhibicion in guia.guia_exhibicion.all():
+                total += exhibicion.costo_produccion
+        return total
+
+    def get_guia_mas_experiencia(self):
+        """ """
+        guias = self.guia_museo_set.all()
+        if len(guias) == 0:
+            return "Sin guías"
+            
+        mejor_guia = guias[0]
+        for guia in guias:
+            if guia.años_experiencia_guia > mejor_guia.años_experiencia_guia:
+                mejor_guia = guia
+                
+        return mejor_guia.nombre_completo
 
     def __str__(self):
         return f"Nombre {self.nombre} - Ciudad: {self.ciudad}- Año fundacion: {self.año_fundacion}"
@@ -18,13 +38,6 @@ class Guia_Museo(models.Model):
     def __str__(self):
         return f"Nombre Completo: {self.nombre_completo}- Anios Experiencia: {self.años_experiencia_guia}- Idiomas: {self.idiomas_hablados}"
 
-# Exhibición:
-# Atributos:
-# titulo_exhibicion: Título de la exhibición (cadena de texto).
-# duracion_meses: Duración de la exhibición en meses (número entero).
-# costo_produccion: Costo total de producción de la exhibición (número decimal).
-# tematica: Temática principal de la exhibición (cadena de texto).
-# Relación: una exhibición es asistida por un guía de museo
 class Exhibicion(models.Model):
     titulo_exhibicion = models.CharField(max_length=100)
     duracion_meses = models.IntegerField()
